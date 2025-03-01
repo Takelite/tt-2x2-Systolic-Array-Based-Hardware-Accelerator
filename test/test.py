@@ -5,17 +5,9 @@ import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import ClockCycles, RisingEdge
 
-async def wait_for_output_ready(dut):
-    """Wait until output is ready (uio_oe becomes FF) with timeout"""
-    for _ in range(1000):  # Prevent infinite loop
-        await RisingEdge(dut.clk)
-        if dut.uio_oe.value == 0xFF:
-            return
-    dut._log.error("Timeout waiting for output ready")
-
 @cocotb.test()
 async def test_matrix_multiplication(dut):
-    """Test the matrix multiplication functionality"""
+    """Test the systolic array matrix multiplication"""
 
     dut._log.info("Starting Matrix Multiplication Test")
 
@@ -37,56 +29,35 @@ async def test_matrix_multiplication(dut):
     await ClockCycles(dut.clk, 5)  # Ensure stability after reset
 
     dut._log.info("=== Matrix Multiplication Test ===")
-    dut._log.info("Input matrices:")
+    dut._log.info("Input Matrices:")
     dut._log.info("Matrix A = [1 2; 3 4]")
     dut._log.info("Matrix B = [5 6; 7 8]")
     dut._log.info("Expected Result = [19 22; 43 50]")
 
-    # Load Matrix A row-wise (systolic array requires streaming)
-    dut._log.info("Loading Matrix A")
-    dut.ui_in.value = 1  # A[0][0]
-    dut.uio_in.value = 3  # A[1][0]
+    # Step 1: Load Matrix A in a single cycle (packed into ui_in)
+    dut.ui_in.value = (1 << 12) | (2 << 8) | (3 << 4) | 4  # Packing: 1 2 3 4
     await ClockCycles(dut.clk, 1)
 
-    dut.ui_in.value = 2  # A[0][1]
-    dut.uio_in.value = 4  # A[1][1]
+    # Step 2: Load Matrix B in next cycle (using ui_in and uio_in)
+    dut.ui_in.value = (5 << 8) | 6  # Packing: 5 6
+    dut.uio_in.value = (7 << 8) | 8  # Packing: 7 8
     await ClockCycles(dut.clk, 1)
 
-    # Load Matrix B column-wise (systolic array requires streaming)
-    dut._log.info("Loading Matrix B")
-    dut.ui_in.value = 5  # B[0][0]
-    dut.uio_in.value = 7  # B[1][0]
-    await ClockCycles(dut.clk, 1)
+    # Step 3: Wait for computation to finish
+    await ClockCycles(dut.clk, 3)  # Adjust cycles if needed
 
-    dut.ui_in.value = 6  # B[0][1]
-    dut.uio_in.value = 8  # B[1][1]
-    await ClockCycles(dut.clk, 1)
+    # Step 4: Read output
+    result = dut.uo_out.value.integer
+    result2 = dut.uio_out.value.integer
 
-    # Clear inputs
-    dut.ui_in.value = 0
-    dut.uio_in.value = 0
-
-    # Wait for computation and output ready
-    await wait_for_output_ready(dut)
-
-    # Additional delay to allow systolic array PEs to settle
-    await ClockCycles(dut.clk, 4)
-
-    dut._log.info("Reading outputs")
-
-    # Read results
-    await RisingEdge(dut.clk)
-    output_val = dut.uo_out.value.integer
-    output_val2 = dut.uio_out.value.integer
-
-    # Extract matrix elements based on systolic array output format
-    result_00 = (output_val >> 8) & 0xFF
-    result_01 = output_val & 0xFF
-    result_10 = (output_val2 >> 8) & 0xFF
-    result_11 = output_val2 & 0xFF
+    # Extract matrix elements
+    result_00 = (result >> 8) & 0xFF
+    result_01 = result & 0xFF
+    result_10 = (result2 >> 8) & 0xFF
+    result_11 = result2 & 0xFF
 
     # Display and verify results
-    dut._log.info(f"Result matrix:")
+    dut._log.info(f"Computed Result Matrix:")
     dut._log.info(f"[{result_00} {result_01}]")
     dut._log.info(f"[{result_10} {result_11}]")
 
@@ -94,5 +65,3 @@ async def test_matrix_multiplication(dut):
     assert result_10 == 43 and result_11 == 50, "Second row mismatch"
 
     dut._log.info("Matrix Multiplication Test: PASSED")
-    await ClockCycles(dut.clk, 2)
-    dut._log.info("Test completed")
