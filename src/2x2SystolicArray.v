@@ -6,7 +6,7 @@ module tt_um_systolic_matmul (
     input  wire [7:0] uio_in,
     output reg  [7:0] uio_out,
     output reg  [7:0] uio_oe,
-    
+    input  wire [3:0] ena,
     input  wire       clk,
     input  wire       rst_n
 );
@@ -159,5 +159,5 @@ module tt_um_systolic_matmul (
             endcase
         end
     end
-
+    wire _unused = &{ena, 1'b0};
 endmodule
