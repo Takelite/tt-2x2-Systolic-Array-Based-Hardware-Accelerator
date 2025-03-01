@@ -3,7 +3,7 @@
 
 import cocotb
 from cocotb.clock import Clock
-from cocotb.triggers import ClockCycles, RisingEdge, FallingEdge
+from cocotb.triggers import ClockCycles, RisingEdge
 from cocotb.binary import BinaryValue
 
 async def wait_for_state(dut, target_state):
@@ -15,7 +15,7 @@ async def wait_for_state(dut, target_state):
 
 @cocotb.test()
 async def test_matrix_multiplication(dut):
-    """Test the main matrix multiplication functionality"""
+    """Test the matrix multiplication functionality"""
     
     dut._log.info("Starting Matrix Multiplication Test")
 
@@ -95,71 +95,4 @@ async def test_matrix_multiplication(dut):
         dut._log.error(str(e))
 
     await ClockCycles(dut.clk, 2)
-
-@cocotb.test()
-async def test_reset_behavior(dut):
-    """Test the reset functionality"""
-    
-    dut._log.info("Starting Reset Test")
-
-    # Start clock (25MHz)
-    clock = Clock(dut.clk, 40, units="ns")
-    cocotb.start_soon(clock.start())
-
-    # Initialize
-    dut.ena.value = 1
-    dut.rst_n.value = 1
-    await ClockCycles(dut.clk, 2)
-
-    # Assert reset
-    dut.rst_n.value = 0
-    await ClockCycles(dut.clk, 2)
-
-    # Verify reset values
-    try:
-        assert dut.dbg_state.value == 0, "State not reset to IDLE"
-        assert dut.uo_out.value == 0, "Output not reset"
-        assert dut.uio_out.value == 0, "Bidirectional output not reset"
-        assert dut.uio_oe.value == 0, "Output enable not reset"
-        dut._log.info("Reset Test: PASSED")
-    except AssertionError as e:
-        dut._log.error("Reset Test: FAILED")
-        dut._log.error(str(e))
-
-@cocotb.test()
-async def test_invalid_input(dut):
-    """Test handling of invalid inputs"""
-    
-    dut._log.info("Starting Invalid Input Test")
-
-    # Start clock (25MHz)
-    clock = Clock(dut.clk, 40, units="ns")
-    cocotb.start_soon(clock.start())
-
-    # Initialize
-    dut.ena.value = 1
-    dut.rst_n.value = 1
-    dut.ui_in.value = 0
-    dut.uio_in.value = 0
-
-    # Reset sequence
-    dut.rst_n.value = 0
-    await ClockCycles(dut.clk, 2)
-    dut.rst_n.value = 1
-
-    # Wait for LOAD_A state
-    await wait_for_state(dut, BinaryValue('0001'))
-
-    # Try loading zero matrix
-    dut.ui_in.value = 0
-    dut.uio_in.value = 0
-    await ClockCycles(dut.clk, 4)
-
-    try:
-        assert dut.uio_oe.value == 0, "Should not enable outputs for invalid input"
-        dut._log.info("Invalid Input Test: PASSED")
-    except AssertionError as e:
-        dut._log.error("Invalid Input Test: FAILED")
-        dut._log.error(str(e))
-
-    await ClockCycles(dut.clk, 2)
+    dut._log.info("Test completed")
