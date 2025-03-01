@@ -30,7 +30,6 @@ module tt_um_systolic_matmul (
     reg [7:0] C [1:0][1:0];
     reg [2:0] delay_counter;
     reg [1:0] compute_counter;
-    reg [3:0] dbg_state
     reg matrix_a_valid;
     reg matrix_b_valid;
 
@@ -42,11 +41,6 @@ module tt_um_systolic_matmul (
     reg [3:0] pe_a [1:0][1:0];
     reg [3:0] pe_b [1:0][1:0];
     reg [7:0] pe_c [1:0][1:0];
-
-    // Assign current state to debug output
-    always @(*) begin
-        dbg_state = state;
-    end
     
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
