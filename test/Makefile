@@ -2,7 +2,7 @@
 # See https://docs.cocotb.org/en/stable/quickstart.html for more info
 
 # defaults
-SIM ?= icarus
+SIM ?= verilator
 TOPLEVEL_LANG ?= systemverilog
 SRC_DIR = $(PWD)/../src
 PROJECT_SOURCES = 2x2SystolicArray.sv
