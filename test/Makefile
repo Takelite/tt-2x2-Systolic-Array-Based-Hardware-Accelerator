@@ -5,7 +5,7 @@
 SIM ?= icarus
 TOPLEVEL_LANG ?= verilog
 SRC_DIR = $(PWD)/../src
-PROJECT_SOURCES = 2x2SystolicArray.sv
+PROJECT_SOURCES = 2x2SystolicArray.v
 
 ifneq ($(GATES),yes)
 
