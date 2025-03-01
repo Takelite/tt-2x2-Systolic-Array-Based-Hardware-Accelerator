@@ -42,6 +42,11 @@ module tt_um_systolic_matmul (
     reg [3:0] pe_b [1:0][1:0];
     reg [7:0] pe_c [1:0][1:0];
 
+    // Assign current state to debug output
+    always @(*) begin
+        dbg_state = state;
+    end
+    
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             state <= IDLE;
