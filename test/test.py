@@ -42,15 +42,25 @@ async def test_matrix_multiplication(dut):
     dut._log.info("Matrix B = [5 6; 7 8]")
     dut._log.info("Expected Result = [19 22; 43 50]")
 
-    # Load Matrix A
-    dut.ui_in.value = 0x12   # [1,2]
-    dut.uio_in.value = 0x34  # [3,4]
-    await ClockCycles(dut.clk, 4)
+    # Load Matrix A row-wise (systolic array requires streaming)
+    dut._log.info("Loading Matrix A")
+    dut.ui_in.value = 1  # A[0][0]
+    dut.uio_in.value = 3  # A[1][0]
+    await ClockCycles(dut.clk, 1)
 
-    # Load Matrix B
-    dut.ui_in.value = 0x56   # [5,6]
-    dut.uio_in.value = 0x78  # [7,8]
-    await ClockCycles(dut.clk, 4)
+    dut.ui_in.value = 2  # A[0][1]
+    dut.uio_in.value = 4  # A[1][1]
+    await ClockCycles(dut.clk, 1)
+
+    # Load Matrix B column-wise (systolic array requires streaming)
+    dut._log.info("Loading Matrix B")
+    dut.ui_in.value = 5  # B[0][0]
+    dut.uio_in.value = 7  # B[1][0]
+    await ClockCycles(dut.clk, 1)
+
+    dut.ui_in.value = 6  # B[0][1]
+    dut.uio_in.value = 8  # B[1][1]
+    await ClockCycles(dut.clk, 1)
 
     # Clear inputs
     dut.ui_in.value = 0
@@ -58,6 +68,10 @@ async def test_matrix_multiplication(dut):
 
     # Wait for computation and output ready
     await wait_for_output_ready(dut)
+
+    # Additional delay to allow systolic array PEs to settle
+    await ClockCycles(dut.clk, 4)
+
     dut._log.info("Reading outputs")
 
     # Read results
@@ -65,7 +79,7 @@ async def test_matrix_multiplication(dut):
     output_val = dut.uo_out.value.integer
     output_val2 = dut.uio_out.value.integer
 
-    # Extract matrix elements
+    # Extract matrix elements based on systolic array output format
     result_00 = (output_val >> 8) & 0xFF
     result_01 = output_val & 0xFF
     result_10 = (output_val2 >> 8) & 0xFF
