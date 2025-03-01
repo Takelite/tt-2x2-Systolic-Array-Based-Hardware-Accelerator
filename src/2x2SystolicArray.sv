@@ -30,6 +30,7 @@ module tt_um_systolic_matmul (
     reg [7:0] C [1:0][1:0];
     reg [2:0] delay_counter;
     reg [1:0] compute_counter;
+    reg [3:0] dbg_state
     reg matrix_a_valid;
     reg matrix_b_valid;
 
