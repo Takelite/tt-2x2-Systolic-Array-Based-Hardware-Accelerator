@@ -3,14 +3,14 @@
 
 import cocotb
 from cocotb.clock import Clock
-from cocotb.triggers import ClockCycles, RisingEdge
+from cocotb.triggers import ClockCycles, RisingEdge, FallingEdge
 from cocotb.binary import BinaryValue
 
-async def wait_for_state(dut, target_state):
-    """Wait until the design reaches a specific state"""
+async def wait_for_output_ready(dut):
+    """Wait until output is ready (uio_oe becomes FF)"""
     while True:
         await RisingEdge(dut.clk)
-        if dut.dbg_state.value == target_state:
+        if dut.uio_oe.value == 0xFF:
             break
 
 @cocotb.test()
@@ -35,7 +35,7 @@ async def test_matrix_multiplication(dut):
     await ClockCycles(dut.clk, 2)
     dut.rst_n.value = 1
 
-    # Wait for IDLE state
+    # Wait after reset
     await ClockCycles(dut.clk, 2)
 
     dut._log.info("=== Matrix Multiplication Test ===")
@@ -44,20 +44,14 @@ async def test_matrix_multiplication(dut):
     dut._log.info("Matrix B = [5 6; 7 8]")
     dut._log.info("Expected Result = [19 22; 43 50]")
 
-    # Wait for LOAD_A state
-    await wait_for_state(dut, BinaryValue('0001'))
-    dut._log.info("Loading Matrix A")
-
     # Load Matrix A
+    dut._log.info("Loading Matrix A")
     dut.ui_in.value = 0x12   # [1,2]
     dut.uio_in.value = 0x34  # [3,4]
     await ClockCycles(dut.clk, 4)
 
-    # Wait for LOAD_B state
-    await wait_for_state(dut, BinaryValue('0100'))
-    dut._log.info("Loading Matrix B")
-
     # Load Matrix B
+    dut._log.info("Loading Matrix B")
     dut.ui_in.value = 0x56   # [5,6]
     dut.uio_in.value = 0x78  # [7,8]
     await ClockCycles(dut.clk, 4)
@@ -66,12 +60,8 @@ async def test_matrix_multiplication(dut):
     dut.ui_in.value = 0
     dut.uio_in.value = 0
 
-    # Wait for computation
-    await wait_for_state(dut, BinaryValue('0111'))
-    dut._log.info("Computing result")
-
-    # Wait for output
-    await wait_for_state(dut, BinaryValue('1000'))
+    # Wait for computation and output ready
+    await wait_for_output_ready(dut)
     dut._log.info("Reading outputs")
 
     # Read results
