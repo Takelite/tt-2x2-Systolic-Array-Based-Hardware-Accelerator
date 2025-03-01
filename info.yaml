@@ -1,7 +1,7 @@
 # Tiny Tapeout project information
 project:
-  title:        "4x4_Systolic_Array"      # Project title
-  author:       "Aditya Minocha"      # Your name
+  title:        "2x2_Systolic_Array"      # Project title
+  author:       "Aditya Minocha,Devansh Raut"      # Your name
   discord:      "skywalker_007"      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
   description:  "This project mainly deals with hardware design and implementation, with a focus on the design of a systolic-array-based hardware accelerator for matrix multiplication in machine learning workloads"      # One line description of what your project does
   language:     "SystemVerilog" # other examples include SystemVerilog, Amaranth, VHDL, etc
@@ -11,45 +11,45 @@ project:
   tiles: "1x1"          # Valid values: 1x1, 1x2, 2x2, 3x2, 4x2, 6x2 or 8x2
 
   # Your top module name must start with "tt_um_". Make it unique by including your github username:
-  top_module:  "tt_um_example"
+  top_module:  "tt_um_systolic_matmul"
 
   # List your project's source files here.
   # Source files must be in ./src and you must list each source file separately, one per line.
   # Don't forget to also update `PROJECT_SOURCES` in test/Makefile.
   source_files:
-    - "4x4SystolicArray.sv"
+    - "2x2SystolicArray.sv"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 pinout:
   # Inputs
-  ui[0]: ""
-  ui[1]: ""
-  ui[2]: ""
-  ui[3]: ""
-  ui[4]: ""
-  ui[5]: ""
-  ui[6]: ""
-  ui[7]: ""
+  ui[0]: "Matrix A,B[0][0] LSB"
+  ui[1]: "Matrix A,B[0][0]"
+  ui[2]: "Matrix A,B[0][0]"
+  ui[3]: "Matrix A,B[0][0] MSB"
+  ui[4]: "Matrix A,B[0][1] LSB"
+  ui[5]: "Matrix A,B[0][1]"
+  ui[6]: "Matrix A,B[0][1]"
+  ui[7]: "Matrix A,B[0][1] MSB"
 
   # Outputs
-  uo[0]: ""
-  uo[1]: ""
-  uo[2]: ""
-  uo[3]: ""
-  uo[4]: ""
-  uo[5]: ""
-  uo[6]: ""
-  uo[7]: ""
+  uo[0]: "Matrix C[0][0] LSB"
+  uo[1]: "Matrix C[0][0] "
+  uo[2]: "Matrix C[0][0] "
+  uo[3]: "Matrix C[0][0] MSB"
+  uo[4]: "Matrix C[0][1] LSB"
+  uo[5]: "Matrix C[0][1] "
+  uo[6]: "Matrix C[0][1] "
+  uo[7]: "Matrix C[0][1] MSB"
 
   # Bidirectional pins
-  uio[0]: ""
-  uio[1]: ""
-  uio[2]: ""
-  uio[3]: ""
-  uio[4]: ""
-  uio[5]: ""
-  uio[6]: ""
-  uio[7]: ""
+  uio[0]: "Matrix A,B [1][0] / Matrix C [1][0] LSB"
+  uio[1]: "Matrix A,B [1][0] / Matrix C [1][0]"
+  uio[2]: "Matrix A,B [1][0] / Matrix C [1][0]"
+  uio[3]: "Matrix A,B [1][0] / Matrix C [1][0] MSB"
+  uio[4]: "Matrix A,B [1][1] / Matrix C [1][1] LSB"
+  uio[5]: "Matrix A,B [1][1] / Matrix C [1][1]"
+  uio[6]: "Matrix A,B [1][1] / Matrix C [1][1]"
+  uio[7]: "Matrix A,B [1][1] / Matrix C [1][1] MSB"
 
 # Do not change!
 yaml_version: 6
