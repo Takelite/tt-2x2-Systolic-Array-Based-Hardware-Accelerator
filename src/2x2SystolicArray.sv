@@ -6,6 +6,7 @@ module tt_um_systolic_matmul (
     input  wire [7:0] uio_in,
     output reg  [7:0] uio_out,
     output reg  [7:0] uio_oe,
+    input wire        ena,
     input  wire       clk,
     input  wire       rst_n
 );
