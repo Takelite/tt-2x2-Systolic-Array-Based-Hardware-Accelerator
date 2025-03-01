@@ -3,7 +3,7 @@
 
 # defaults
 SIM ?= icarus
-TOPLEVEL_LANG ?= systemverilog
+TOPLEVEL_LANG ?= verilog
 SRC_DIR = $(PWD)/../src
 PROJECT_SOURCES = 2x2SystolicArray.sv
 
